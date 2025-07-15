@@ -1,37 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addToWishlist } from '../redux/slices/wishlistSlice';
+import { removeProduct } from '../redux/actions/wishlistActions';
 import { useSnackbar } from 'notistack';
 
 export function useWishlist() {
-  const [wishlist, setWishlist] = useState([]);
+  const dispatch = useDispatch();
+  const wishlist = useSelector((state) => state.wishlist.items);
   const { enqueueSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    const savedWishlist = localStorage.getItem('wishlist');
-    if (savedWishlist) {
-      setWishlist(JSON.parse(savedWishlist));
-    }
-  }, []);
-
-  const saveWishlist = (items) => {
-    localStorage.setItem('wishlist', JSON.stringify(items));
-    setWishlist(items);
+  const handleAddToWishlist = (product) => {
+    dispatch(addToWishlist(product));
+    enqueueSnackbar(`${product.title} added to wishlist`, { 
+      variant: 'success',
+      autoHideDuration: 2000
+    });
   };
 
-  const addToWishlist = (product) => {
-    if (!wishlist.some((item) => item.id === product.id)) {
-      const newWishlist = [...wishlist, product];
-      saveWishlist(newWishlist);
-      enqueueSnackbar(`${product.title} added to wishlist`, { variant: 'success' });
-    } else {
-      enqueueSnackbar('Product already in wishlist', { variant: 'info' });
-    }
+  const handleRemoveFromWishlist = async (productId) => {
+    await dispatch(removeProduct(productId));
+    enqueueSnackbar('Product removed', { 
+      variant: 'info',
+      autoHideDuration: 2000
+    });
   };
 
-  const removeFromWishlist = (productId) => {
-    const newWishlist = wishlist.filter((item) => item.id !== productId);
-    saveWishlist(newWishlist);
-    enqueueSnackbar('Product removed from wishlist', { variant: 'info' });
+  return { 
+    wishlist, 
+    addToWishlist: handleAddToWishlist, 
+    removeFromWishlist: handleRemoveFromWishlist 
   };
-
-  return { wishlist, addToWishlist, removeFromWishlist };
 }

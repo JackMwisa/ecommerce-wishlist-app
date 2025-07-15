@@ -1,11 +1,49 @@
-import { Card, CardMedia, CardContent, Typography, Button, CardActions } from '@mui/material';
-import { useWishlist } from '../hooks/useWishlist';
+import React, { useState } from 'react';
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+  CardActions,
+  CircularProgress
+} from '@mui/material';
+import { useDispatch } from 'react-redux';
+import { addToWishlist } from '../redux/slices/wishlistSlice';
+import { useSnackbar } from 'notistack';
 
-export default function ProductCard({ product, onWishlist = false }) {
-  const { addToWishlist, removeFromWishlist } = useWishlist();
+export default function ProductCard({ product, onWishlist = false, onRemove }) {
+  const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
+  const [loading, setLoading] = useState(false);
+
+  const handleAddToWishlist = async () => {
+    try {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));  
+      dispatch(addToWishlist(product));
+      enqueueSnackbar(` "${product.title}" added to wishlist`, {
+        variant: 'success',
+        autoHideDuration: 2500,
+        anchorOrigin: { vertical: 'top', horizontal: 'right' },
+      });
+    } catch (err) {
+      enqueueSnackbar('Something went wrong', { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Card sx={{ maxWidth: 345, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Card
+      sx={{
+        maxWidth: 345,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
       <CardMedia
         component="img"
         height="140"
@@ -13,6 +51,7 @@ export default function ProductCard({ product, onWishlist = false }) {
         alt={product.title}
         sx={{ objectFit: 'contain', p: 1 }}
       />
+
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography gutterBottom variant="h6" component="div">
           {product.title}
@@ -26,12 +65,14 @@ export default function ProductCard({ product, onWishlist = false }) {
           ${product.price}
         </Typography>
       </CardContent>
+
       <CardActions>
         {onWishlist ? (
           <Button
             size="small"
             color="error"
-            onClick={() => removeFromWishlist(product.id)}
+            variant="outlined"
+            onClick={onRemove}
           >
             Remove
           </Button>
@@ -39,9 +80,12 @@ export default function ProductCard({ product, onWishlist = false }) {
           <Button
             size="small"
             color="primary"
-            onClick={() => addToWishlist(product)}
+            variant="contained"
+            onClick={handleAddToWishlist}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} /> : null}
           >
-            Add to Wishlist
+            {loading ? 'Adding...' : 'Add to Wishlist'}
           </Button>
         )}
       </CardActions>
