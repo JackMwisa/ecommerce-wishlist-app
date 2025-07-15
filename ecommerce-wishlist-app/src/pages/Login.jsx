@@ -1,25 +1,26 @@
 import { useState } from 'react';
-import { Container, Card, CardContent, TextField, Button, Typography, Box } from '@mui/material';
+import {
+    Container,
+    Card,
+    CardContent,
+    TextField,
+    Button,
+    Typography,
+    Box,
+    Alert
+} from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const { login } = useAuth();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setError('');
-
-        if (!username.trim() || !password.trim()) {
-            setError('Please enter both username and password');
-            return;
-        }
-
-        const success = login(username, password);
-        if (!success) {
-            setError('Login failed. Please try again.');
+        // For demo purposes, accept any non-empty credentials
+        if (username.trim() && password.trim()) {
+            login();
         }
     };
 
@@ -30,12 +31,12 @@ export default function Login() {
                     <Typography variant="h5" component="h1" align="center" gutterBottom>
                         Login
                     </Typography>
-                    {error && (
-                        <Typography color="error" align="center" sx={{ mb: 2 }}>
-                            {error}
-                        </Typography>
-                    )}
-                    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+
+                    <Alert severity="info" sx={{ mb: 3 }}>
+                        Demo credentials: Use any username and password
+                    </Alert>
+
+                    <Box component="form" onSubmit={handleSubmit}>
                         <TextField
                             fullWidth
                             label="Username"
@@ -61,6 +62,7 @@ export default function Login() {
                             variant="contained"
                             color="primary"
                             sx={{ mt: 3 }}
+                            disabled={!username.trim() || !password.trim()}
                         >
                             Login
                         </Button>
