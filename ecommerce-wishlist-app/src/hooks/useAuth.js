@@ -6,16 +6,20 @@ export function useAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const auth = localStorage.getItem('isAuthenticated');
-    if (auth) {
-      setIsAuthenticated(true);
-    }
+    // Check if user is already logged in
+    const authStatus = localStorage.getItem('isAuthenticated');
+    setIsAuthenticated(authStatus === 'true');
   }, []);
 
-  const login = () => {
-    localStorage.setItem('isAuthenticated', 'true');
-    setIsAuthenticated(true);
-    navigate('/wishlist');
+  const login = (username, password) => {
+    // Simple validation - in real app, you'd verify credentials
+    if (username && password) {
+      localStorage.setItem('isAuthenticated', 'true');
+      setIsAuthenticated(true);
+      navigate('/wishlist'); // Redirect after login
+      return true;
+    }
+    return false;
   };
 
   const logout = () => {
