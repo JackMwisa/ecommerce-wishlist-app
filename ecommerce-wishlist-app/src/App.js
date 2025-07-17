@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { SnackbarProvider } from 'notistack'; // ✅ Import this
+import { SnackbarProvider } from 'notistack';  
 import Home from './pages/Home';
 import About from './pages/About';
 import Products from './pages/Products';
